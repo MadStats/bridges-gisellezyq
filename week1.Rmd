@@ -1,0 +1,39 @@
+#Week 1
+
+** Name: Yiqiao Zhang **
+**mail: yzhang878@wisc.edu **
+
+```{r}
+library("readr")
+```
+
+* Get the AB of state
+```{r}
+#The raw lines of pages of year 1992:
+yearlink = readLines(paste0("https://www.fhwa.dot.gov/bridge/nbi/ascii.cfm?year=", 1992))
+#Lines that include the abbreviation of every state:
+stateline = grep(pattern = "<a href=.*;nbiState=\\w{2}\\d{2}.*", x = yearlink) 
+#Abbreviation of every state:
+state = gsub(pattern = "<a href=.*;nbiState=(\\w{2})\\d{2}.*", replacement = "\\1", x = yearlink[stateline])   
+```
+
+*Read the data and get the columns of what we want.
+```{r}
+text = list()
+for (i in 1:1) {    #year, start from 2010 which has delimiters.
+  for (j in 1:1) {   #state
+    # Read the txt of every link:
+    text = read_csv(paste0("https://www.fhwa.dot.gov/bridge/nbi/", 2009+i, "/delimited/", state[j], 9+i, ".txt"))
+    ID = text$STRUCTURE_NUMBER_008
+    fips_code = text$STATE_CODE_001
+    year = text$YEAR_BUILT_027
+    deck_cond = text$DECK_COND_058
+    superstructure_cond = text$SUPERSTRUCTURE_COND_059
+    substructure_cond = text$SUBSTRUCTURE_COND_060
+    channel_cond = text$CHANNEL_COND_061
+    culvert_cond = text$CULVERT_COND_062
+    textnew = data.frame(ID, fips_code, year, deck_cond, superstructure_cond, channel_cond,culvert_cond)
+    write_csv(textnew, paste0(2009+i, "_", state[j],".txt"))
+  }
+}
+```
